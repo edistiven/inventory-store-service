@@ -1,0 +1,46 @@
+plugins {
+    id 'java'
+    id 'io.spring.dependency-management'
+}
+
+group = 'com.inventory.store'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.boot:spring-boot-dependencies:4.0.5"
+    }
+}
+
+dependencies {
+    // Lombok para Value Objects
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    
+    // Jakarta validation para validaciones
+    implementation 'jakarta.validation:jakarta.validation-api'
+    
+    // Testing
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+jar {
+    enabled = true
+    archiveClassifier = ''
+}

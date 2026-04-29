@@ -1,0 +1,3 @@
+-- Insertar usuarios iniciales
+--INSERT INTO INV_USER (UUID, USERNAME, PASSWORD, ROL, USER_COMPLETE_NAME, STATUS, VERSION, REGISTER_DATE, REGISTER_USER_DATE) VALUES
+--('550e8400-e29b-41d4-a716-446655440000', 'admin', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', 'Administrador del Sistema', true, 1, CURRENT_DATE, 'admin');

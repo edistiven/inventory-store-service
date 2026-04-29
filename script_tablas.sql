@@ -1,0 +1,186 @@
+-- Script para crear tablas ITEM y USER con campos de auditoría
+-- Campos en inglés y mayúsculas según requerimiento
+
+-- Tabla CATALOG
+CREATE TABLE INV_CATALOG
+(
+    ID                     BIGSERIAL      PRIMARY KEY,
+    NAME                   VARCHAR(100)   NOT NULL,
+    DESCRIPTION            VARCHAR(500),
+    -- Campos de auditoría
+    STATUS                 CHAR(1)        NOT NULL DEFAULT '1',
+    VERSION                INTEGER        NOT NULL DEFAULT 1,
+    REGISTER_DATE          TIMESTAMP      NOT NULL,
+    REGISTER_USER_DATE     VARCHAR(50)    NOT NULL,
+    MODIFICATION_DATE      TIMESTAMP,
+    MODIFICATION_USER_DATE VARCHAR(50)
+);
+
+-- Tabla ITEM
+CREATE TABLE INV_ITEM
+(
+    ITEM_CODE              BIGSERIAL      PRIMARY KEY,
+    NAME                   VARCHAR(200)   NOT NULL,
+    DESCRIPTION            VARCHAR(500),
+    BAR_CODE               VARCHAR(15)    NOT NULL UNIQUE,
+    PRICE                  DECIMAL(12, 2) NOT NULL,
+    QUANTITY               INTEGER        NOT NULL,
+    EXPIRATION_DATE        TIMESTAMP,
+    SOLD_QUANTITY          INTEGER        NOT NULL DEFAULT 0,
+    CATALOG_ID             BIGINT,        -- Foreign Key a INV_CATALOG
+    -- Campos de auditoría
+    STATUS                 CHAR(1)        NOT NULL DEFAULT '1',
+    VERSION                INTEGER        NOT NULL DEFAULT 1,
+    REGISTER_DATE          TIMESTAMP      NOT NULL,
+    REGISTER_USER_DATE     VARCHAR(50)    NOT NULL,
+    MODIFICATION_DATE      TIMESTAMP,
+    MODIFICATION_USER_DATE VARCHAR(50),
+    -- Foreign Key
+    FOREIGN KEY (CATALOG_ID) REFERENCES INV_CATALOG (ID)
+);
+
+-- Tabla USER
+CREATE TABLE INV_USER
+(
+    UUID                   VARCHAR(36) PRIMARY KEY,
+    USERNAME               VARCHAR(50)  NOT NULL UNIQUE,
+    USER_COMPLETE_NAME     VARCHAR(255),
+    PASSWORD               VARCHAR(255) NOT NULL,
+    ROL                    VARCHAR(20)  NOT NULL,
+    -- Campos de auditoría
+    STATUS                 CHAR(1)      NOT NULL DEFAULT '1',
+    VERSION                INTEGER      NOT NULL DEFAULT 1,
+    REGISTER_DATE          TIMESTAMP      NOT NULL,
+    REGISTER_USER_DATE     VARCHAR(50)  NOT NULL,
+    MODIFICATION_DATE      TIMESTAMP,
+    MODIFICATION_USER_DATE VARCHAR(50)
+);
+
+-- Tabla INV_SALE_HISTORY para historial de ventas
+CREATE TABLE INV_SALE_HISTORY
+(
+    UUID                   VARCHAR(36) PRIMARY KEY,
+    ITEM_CODE              BIGINT         NOT NULL,
+    PREVIOUS_QUANTITY      INTEGER        NOT NULL,
+    NEW_QUANTITY           INTEGER        NOT NULL,
+    SOLD_QUANTITY          INTEGER        NOT NULL,
+    -- Campos de auditoría
+    STATUS                 CHAR(1)        NOT NULL DEFAULT '1',
+    VERSION                INTEGER        NOT NULL DEFAULT 1,
+    REGISTERED_BY          VARCHAR(50)    NOT NULL,
+    REGISTRATION_DATE      TIMESTAMP      NOT NULL,
+    MODIFICATION_DATE      TIMESTAMP,
+    MODIFICATION_USER_DATE VARCHAR(50),
+    -- Foreign Key
+    FOREIGN KEY (ITEM_CODE) REFERENCES INV_ITEM (ITEM_CODE)
+);
+
+-- Índices recomendados
+CREATE INDEX IDX_CATALOG_STATUS ON INV_CATALOG (STATUS);
+CREATE INDEX IDX_CATALOG_REGISTER_DATE ON INV_CATALOG (REGISTER_DATE);
+CREATE INDEX IDX_ITEM_STATUS ON INV_ITEM (STATUS);
+CREATE INDEX IDX_ITEM_EXPIRATION_DATE ON INV_ITEM (EXPIRATION_DATE);
+CREATE INDEX IDX_ITEM_CATALOG_ID ON INV_ITEM (CATALOG_ID);
+CREATE UNIQUE INDEX IDX_BAR_CODE ON INV_ITEM (BAR_CODE);
+CREATE INDEX IDX_USER_USERNAME ON INV_USER (USERNAME);
+CREATE INDEX IDX_USER_STATUS ON INV_USER (STATUS);
+CREATE INDEX IDX_USER_ROL ON INV_USER (ROL);
+CREATE INDEX IDX_SALE_HISTORY_ITEM_CODE ON INV_SALE_HISTORY (ITEM_CODE);
+CREATE INDEX IDX_SALE_HISTORY_REGISTERED_BY ON INV_SALE_HISTORY (REGISTERED_BY);
+CREATE INDEX IDX_SALE_HISTORY_REGISTRATION_DATE ON INV_SALE_HISTORY (REGISTRATION_DATE);
+CREATE INDEX IDX_SALE_HISTORY_STATUS ON INV_SALE_HISTORY (STATUS);
+
+-- Comentarios para documentación
+COMMENT
+ON TABLE INV_CATALOG IS 'Tabla de catálogos del sistema';
+COMMENT
+ON COLUMN INV_CATALOG.ID IS 'ID único auto-incremental del catálogo';
+COMMENT
+ON COLUMN INV_CATALOG.NAME IS 'Nombre del catálogo';
+COMMENT
+ON COLUMN INV_CATALOG.DESCRIPTION IS 'Descripción detallada del catálogo';
+COMMENT
+ON COLUMN INV_CATALOG.STATUS IS 'Estado del registro: 1=Activo, 0=Inactivo';
+COMMENT
+ON COLUMN INV_CATALOG.VERSION IS 'Versión del registro para control de concurrencia';
+COMMENT
+ON COLUMN INV_CATALOG.REGISTER_DATE IS 'Fecha de creación del registro';
+COMMENT
+ON COLUMN INV_CATALOG.REGISTER_USER_DATE IS 'Usuario que creó el registro';
+COMMENT
+ON COLUMN INV_CATALOG.MODIFICATION_DATE IS 'Fecha de última modificación';
+COMMENT
+ON COLUMN INV_CATALOG.MODIFICATION_USER_DATE IS 'Usuario que modificó el registro';
+
+COMMENT
+ON TABLE INV_ITEM IS 'Tabla de items del inventario';
+COMMENT
+ON COLUMN INV_ITEM.ITEM_CODE IS 'Código numérico auto-incremental del item (Primary Key)';
+COMMENT
+ON COLUMN INV_ITEM.NAME IS 'Nombre del item';
+COMMENT
+ON COLUMN INV_ITEM.DESCRIPTION IS 'Descripción detallada del item';
+COMMENT
+ON COLUMN INV_ITEM.PRICE IS 'Precio unitario del item';
+COMMENT
+ON COLUMN INV_ITEM.QUANTITY IS 'Cantidad disponible en inventario';
+COMMENT
+ON COLUMN INV_ITEM.EXPIRATION_DATE IS 'Fecha de caducidad del item';
+COMMENT
+ON COLUMN INV_ITEM.SOLD_QUANTITY IS 'Cantidad total vendida';
+COMMENT
+ON COLUMN INV_ITEM.BAR_CODE IS 'Código de barras del item';
+COMMENT
+ON COLUMN INV_ITEM.CATALOG_ID IS 'ID del catálogo al que pertenece el item';
+COMMENT
+ON COLUMN INV_ITEM.STATUS IS 'Estado del registro: 1=Activo, 0=Inactivo';
+COMMENT
+ON COLUMN INV_ITEM.VERSION IS 'Versión del registro para control de concurrencia';
+COMMENT
+ON COLUMN INV_ITEM.REGISTER_DATE IS 'Fecha de creación del registro';
+COMMENT
+ON COLUMN INV_ITEM.REGISTER_USER_DATE IS 'Usuario que creó el registro';
+COMMENT
+ON COLUMN INV_ITEM.MODIFICATION_DATE IS 'Fecha de última modificación';
+COMMENT
+ON COLUMN INV_ITEM.MODIFICATION_USER_DATE IS 'Usuario que modificó el registro';
+
+COMMENT
+ON TABLE INV_USER IS 'Tabla de usuarios del sistema';
+COMMENT
+ON COLUMN INV_USER.STATUS IS 'Estado del registro: 1=Activo, 0=Inactivo';
+COMMENT
+ON COLUMN INV_USER.VERSION IS 'Versión del registro para control de concurrencia';
+COMMENT
+ON COLUMN INV_USER.REGISTER_DATE IS 'Fecha de creación del registro';
+COMMENT
+ON COLUMN INV_USER.REGISTER_USER_DATE IS 'Usuario que creó el registro';
+COMMENT
+ON COLUMN INV_USER.MODIFICATION_DATE IS 'Fecha de última modificación';
+COMMENT
+ON COLUMN INV_USER.MODIFICATION_USER_DATE IS 'Usuario que modificó el registro';
+
+COMMENT
+ON TABLE INV_SALE_HISTORY IS 'Tabla para historial de ventas y cambios de inventario';
+COMMENT
+ON COLUMN INV_SALE_HISTORY.UUID IS 'UUID único del registro de historial';
+COMMENT
+ON COLUMN INV_SALE_HISTORY.ITEM_CODE IS 'Código del item vendido';
+COMMENT
+ON COLUMN INV_SALE_HISTORY.PREVIOUS_QUANTITY IS 'Cantidad de stock antes de la venta';
+COMMENT
+ON COLUMN INV_SALE_HISTORY.NEW_QUANTITY IS 'Cantidad de stock después de la venta';
+COMMENT
+ON COLUMN INV_SALE_HISTORY.SOLD_QUANTITY IS 'Cantidad vendida en esta transacción';
+COMMENT
+ON COLUMN INV_SALE_HISTORY.REGISTERED_BY IS 'Usuario que registró la venta';
+COMMENT
+ON COLUMN INV_SALE_HISTORY.REGISTRATION_DATE IS 'Fecha y hora del registro de la venta';
+COMMENT
+ON COLUMN INV_SALE_HISTORY.STATUS IS 'Estado del registro: 1=Activo, 0=Inactivo';
+COMMENT
+ON COLUMN INV_SALE_HISTORY.VERSION IS 'Versión del registro para control de concurrencia';
+COMMENT
+ON COLUMN INV_SALE_HISTORY.MODIFICATION_DATE IS 'Fecha de última modificación del registro';
+COMMENT
+ON COLUMN INV_SALE_HISTORY.MODIFICATION_USER_DATE IS 'Usuario que modificó el registro';

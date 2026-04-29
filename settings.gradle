@@ -1,0 +1,8 @@
+rootProject.name = 'inventory-store-service'
+
+include ':inventory-store-vo'
+include ':inventory-store-client'
+include ':inventory-store-core'
+include ':inventory-store-services'
+
+

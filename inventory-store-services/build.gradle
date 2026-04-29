@@ -1,0 +1,63 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '4.0.5'
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.inventory.store'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Dependencias de otros módulos
+    implementation project(':inventory-store-client')
+    implementation project(':inventory-store-core')
+    implementation project(':inventory-store-vo')
+    
+    // Spring Boot para la aplicación web
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    
+    // Base de datos
+    runtimeOnly 'org.postgresql:postgresql'
+    
+    // Desarrollo
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    
+    // Lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    
+    // Testing
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testCompileOnly 'org.projectlombok:lombok'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+// BootJar solo para el módulo services
+bootJar {
+    enabled = true
+    archiveClassifier = ''
+}
+
+jar {
+    enabled = true
+    archiveClassifier = 'plain'
+}
